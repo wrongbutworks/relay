@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `send_dm` and `agent-relay message dm send` now distinguish durable enqueue from recipient delivery: receipts name the exact requested/resolved recipient and report queued-unconfirmed state, empty reader lists surface a queued-or-unread signal, and `wait` versus `steer` semantics are documented at the choice point.
+- Direct-message send receipts now name the exact requested and resolved recipients and report unconfirmed enqueue without claiming delivery.
+- Empty reader lists now surface a queued-or-unread signal instead of requiring callers to infer delivery state.
+- Direct-message docs now explain that `wait` injects on idle while `steer` injects immediately and may interrupt active work.
 - `agent-relay node agent attach --mode drive` (and `--mode passthrough`) no longer floods the terminal with `input stream send failed: PTY input stream is closed` when the PTY input stream dies mid-session. The loss is now reported once, the stream is reopened with bounded backoff, and if that fails the command exits non-zero with a readable message instead of leaving a session that looks alive but accepts no input. Because attach forwards every byte except `Ctrl+C`/`Ctrl+]` while the stream is healthy, a source TUI with mouse tracking enabled could previously produce this flood from pointer movement alone, without a single keystroke; input is now dropped rather than forwarded for as long as the stream is down.
 - A reopened attach input stream is verified to belong to the same worker process before any keystroke is forwarded. The stream is reopened by agent name, so without this a replaced worker could silently receive input typed for the session you attached to; the check fails closed when identity cannot be established.
 
